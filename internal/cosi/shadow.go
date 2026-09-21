@@ -29,6 +29,8 @@ import (
 )
 
 const (
+	// labelValueTrue is the boolean-true value carried by the COSI marker labels
+	labelValueTrue = "true"
 	// LabelCOSIManaged indicates this resource was created by COSI
 	LabelCOSIManaged = "garage.rajsingh.info/cosi-managed"
 	// LabelCOSIBucketClaim references the BucketClaim that created this bucket
@@ -78,7 +80,7 @@ func truncateLabelValue(value string) string {
 // ShadowBucketLabels returns labels for a shadow GarageBucket
 func ShadowBucketLabels(cosiName string) map[string]string {
 	return map[string]string{
-		LabelCOSIManaged:     "true",
+		LabelCOSIManaged:     labelValueTrue,
 		LabelCOSIBucketClaim: cosiName,
 	}
 }
@@ -86,7 +88,7 @@ func ShadowBucketLabels(cosiName string) map[string]string {
 // ShadowKeyLabels returns labels for a shadow GarageKey
 func ShadowKeyLabels(cosiName string) map[string]string {
 	return map[string]string{
-		LabelCOSIManaged:      "true",
+		LabelCOSIManaged:      labelValueTrue,
 		LabelCOSIBucketAccess: cosiName,
 	}
 }
@@ -161,7 +163,7 @@ func (m *ShadowManager) DeleteShadowBucketByID(ctx context.Context, bucketID str
 	// Use label selector for efficient lookup
 	bucketList := &garagev1alpha1.GarageBucketList{}
 	labelSelector := client.MatchingLabels{
-		LabelCOSIManaged:  "true",
+		LabelCOSIManaged:  labelValueTrue,
 		LabelCOSIBucketID: truncateLabelValue(bucketID),
 	}
 	if err := m.client.List(ctx, bucketList,
@@ -233,7 +235,7 @@ func (m *ShadowManager) DeleteShadowKeyByID(ctx context.Context, accountID strin
 	// Use label selector for efficient lookup
 	keyList := &garagev1alpha1.GarageKeyList{}
 	labelSelector := client.MatchingLabels{
-		LabelCOSIManaged:   "true",
+		LabelCOSIManaged:   labelValueTrue,
 		LabelCOSIAccountID: truncateLabelValue(accountID),
 	}
 	if err := m.client.List(ctx, keyList,

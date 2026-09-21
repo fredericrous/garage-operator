@@ -166,7 +166,7 @@ var _ = Describe("Federation - connectToRemoteCluster", func() {
 					}
 				},
 				healthResp: func() (int, any) {
-					return http.StatusOK, garage.ClusterHealth{Status: "healthy"}
+					return http.StatusOK, garage.ClusterHealth{Status: healthStatusHealthy}
 				},
 			}
 			remoteServer := newMockGarageServer(remoteHandler)
@@ -179,7 +179,7 @@ var _ = Describe("Federation - connectToRemoteCluster", func() {
 					return http.StatusOK, garage.ClusterStatus{}
 				},
 				healthResp: func() (int, any) {
-					return http.StatusOK, garage.ClusterHealth{Status: "healthy"}
+					return http.StatusOK, garage.ClusterHealth{Status: healthStatusHealthy}
 				},
 				connectResp: func() (int, any) {
 					connectCalls.Add(1)
@@ -243,7 +243,7 @@ var _ = Describe("Federation - connectToRemoteCluster", func() {
 					return http.StatusOK, garage.ClusterStatus{}
 				},
 				healthResp: func() (int, any) {
-					return http.StatusOK, garage.ClusterHealth{Status: "healthy"}
+					return http.StatusOK, garage.ClusterHealth{Status: healthStatusHealthy}
 				},
 				connectResp: func() (int, any) {
 					connectCalls.Add(1)
@@ -258,7 +258,7 @@ var _ = Describe("Federation - connectToRemoteCluster", func() {
 					return http.StatusOK, garage.ClusterStatus{}
 				},
 				healthResp: func() (int, any) {
-					return http.StatusOK, garage.ClusterHealth{Status: "healthy"}
+					return http.StatusOK, garage.ClusterHealth{Status: healthStatusHealthy}
 				},
 			}
 			remoteServer := newMockGarageServer(remoteHandler)
@@ -319,7 +319,7 @@ var _ = Describe("Federation - connectToRemoteCluster", func() {
 					}
 				},
 				healthResp: func() (int, any) {
-					return http.StatusOK, garage.ClusterHealth{Status: "healthy"}
+					return http.StatusOK, garage.ClusterHealth{Status: healthStatusHealthy}
 				},
 			}
 			remoteServer := newMockGarageServer(remoteHandler)
@@ -331,7 +331,7 @@ var _ = Describe("Federation - connectToRemoteCluster", func() {
 					return http.StatusOK, garage.ClusterStatus{}
 				},
 				healthResp: func() (int, any) {
-					return http.StatusOK, garage.ClusterHealth{Status: "healthy"}
+					return http.StatusOK, garage.ClusterHealth{Status: healthStatusHealthy}
 				},
 				connectResp: func() (int, any) {
 					connectCalls.Add(1)
@@ -395,7 +395,7 @@ var _ = Describe("Federation - connectToRemoteCluster", func() {
 					return http.StatusOK, garage.ClusterStatus{}
 				},
 				healthResp: func() (int, any) {
-					return http.StatusOK, garage.ClusterHealth{Status: "healthy"}
+					return http.StatusOK, garage.ClusterHealth{Status: healthStatusHealthy}
 				},
 			}
 			localServer := newMockGarageServer(localHandler)
@@ -447,7 +447,7 @@ var _ = Describe("Federation - connectToRemoteCluster", func() {
 					return http.StatusOK, garage.ClusterStatus{}
 				},
 				healthResp: func() (int, any) {
-					return http.StatusOK, garage.ClusterHealth{Status: "healthy"}
+					return http.StatusOK, garage.ClusterHealth{Status: healthStatusHealthy}
 				},
 			}
 			localServer := newMockGarageServer(localHandler)
