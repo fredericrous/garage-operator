@@ -48,6 +48,51 @@ const (
 // Common secret keys
 const (
 	DefaultAdminTokenKey = "admin-token"
+	// DefaultMetricsTokenKey is the key holding the Garage metrics bearer token
+	DefaultMetricsTokenKey = "metrics-token"
+	// DefaultRPCSecretKey is the key holding the Garage inter-node RPC secret
+	DefaultRPCSecretKey = "rpc-secret"
+)
+
+// Recommended Kubernetes label keys applied to every resource the operator owns.
+// See https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/
+const (
+	// LabelAppName identifies the application the resource belongs to
+	LabelAppName = "app.kubernetes.io/name"
+	// LabelAppInstance identifies the individual instance of the application
+	LabelAppInstance = "app.kubernetes.io/instance"
+	// LabelAppComponent identifies the role the resource plays within the application
+	LabelAppComponent = "app.kubernetes.io/component"
+	// LabelAppManagedBy identifies the tool managing the resource
+	LabelAppManagedBy = "app.kubernetes.io/managed-by"
+	// ManagedByGarageOperator is the LabelAppManagedBy value this operator stamps
+	ManagedByGarageOperator = "garage-operator"
+)
+
+// Operator-owned label keys
+const (
+	// LabelCluster names the GarageCluster a resource belongs to
+	LabelCluster = "garage.rajsingh.info/cluster"
+)
+
+// Garage application naming
+const (
+	// AppNameGarage is the application/container name used for Garage workloads
+	AppNameGarage = "garage"
+	// DefaultS3Region is the S3 region advertised when the cluster does not set one
+	DefaultS3Region = "garage"
+)
+
+// StatefulSet volume names and container mount paths
+const (
+	// VolumeNameConfig holds the rendered garage.toml
+	VolumeNameConfig = "config"
+	// VolumeNameMetadata holds the Garage metadata directory
+	VolumeNameMetadata = "metadata"
+	// VolumeNameData holds the Garage block data directory
+	VolumeNameData = "data"
+	// MountPathData is where the data volume is mounted inside the Garage container
+	MountPathData = "/data/data"
 )
 
 // Default Garage ports
@@ -61,6 +106,10 @@ const (
 
 // Reconciliation timing constants
 const (
+	// RequeueAfterImmediate is a prompt retry used after the operator has just
+	// mutated the object itself (e.g. adding a finalizer) and wants to reconcile
+	// again from the updated state. It replaces the deprecated ctrl.Result{Requeue: true}.
+	RequeueAfterImmediate = 1 * time.Second
 	// RequeueAfterError is the delay before requeuing after an error
 	RequeueAfterError = 30 * time.Second
 	// RequeueAfterUnhealthy is a fast delay for reconnecting unhealthy clusters

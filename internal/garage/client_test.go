@@ -360,13 +360,13 @@ func TestWorkerState_UnmarshalJSON(t *testing.T) {
 		{
 			name:             "throttled state with duration",
 			input:            `{"throttled":{"durationSecs":1.5}}`,
-			expectedState:    "throttled",
+			expectedState:    WorkerStateThrottled,
 			expectedDuration: float32Ptr(1.5),
 		},
 		{
 			name:             "throttled state with integer duration",
 			input:            `{"throttled":{"durationSecs":5}}`,
-			expectedState:    "throttled",
+			expectedState:    WorkerStateThrottled,
 			expectedDuration: float32Ptr(5.0),
 		},
 		{
@@ -440,7 +440,7 @@ func TestWorkerState_MarshalJSON(t *testing.T) {
 		},
 		{
 			name:     "throttled state with duration",
-			input:    WorkerState{State: "throttled", DurationSecs: float32Ptr(2.5)},
+			input:    WorkerState{State: WorkerStateThrottled, DurationSecs: float32Ptr(2.5)},
 			expected: `{"throttled":{"durationSecs":2.5}}`,
 		},
 	}
@@ -472,7 +472,7 @@ func TestWorkerState_Helpers(t *testing.T) {
 		{"busy", WorkerState{State: "busy"}, true, false, false, false},
 		{"idle", WorkerState{State: "idle"}, false, true, false, false},
 		{"done", WorkerState{State: "done"}, false, false, true, false},
-		{"throttled", WorkerState{State: "throttled"}, false, false, false, true},
+		{WorkerStateThrottled, WorkerState{State: WorkerStateThrottled}, false, false, false, true},
 	}
 
 	for _, tt := range tests {

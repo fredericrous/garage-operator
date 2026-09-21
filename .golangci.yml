@@ -19,6 +19,13 @@ linters:
     - unused
   exclusions:
     generated: lax
+    rules:
+      # Test tables deliberately repeat literals ("default", "test", fixture IDs,
+      # sample keys): spelling them out keeps each case readable on its own, and
+      # hoisting them into constants would hide what a case actually exercises.
+      - path: '_test\.go'
+        linters:
+          - goconst
     paths:
       - third_party$
       - builtin$
