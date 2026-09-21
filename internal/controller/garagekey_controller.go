@@ -91,13 +91,13 @@ func (r *GarageKeyReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 
 	// Now check cluster error for non-deletion cases
 	if clusterErr != nil {
-		return r.updateStatus(ctx, key, "Error", fmt.Errorf("cluster not found: %w", clusterErr))
+		return r.updateStatus(ctx, key, PhaseError, fmt.Errorf("cluster not found: %w", clusterErr))
 	}
 
 	// Get garage client
 	garageClient, err := GetGarageClient(ctx, r.Client, cluster)
 	if err != nil {
-		return r.updateStatus(ctx, key, "Error", fmt.Errorf("failed to create garage client: %w", err))
+		return r.updateStatus(ctx, key, PhaseError, fmt.Errorf("failed to create garage client: %w", err))
 	}
 
 	// Handle deletion (cluster exists at this point)
@@ -134,7 +134,7 @@ func (r *GarageKeyReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		if err := r.Update(ctx, key); err != nil {
 			return ctrl.Result{}, err
 		}
-		return ctrl.Result{Requeue: true}, nil
+		return ctrl.Result{RequeueAfter: RequeueAfterImmediate}, nil
 	}
 
 	// Reconcile the key
@@ -583,8 +583,8 @@ func resolveSecretConfig(key *garagev1alpha1.GarageKey) secretConfig {
 		includeEndpoint:    true,
 		includeRegion:      true,
 		labels: map[string]string{
-			"app.kubernetes.io/managed-by": "garage-operator",
-			"garage.rajsingh.info/key":     key.Name,
+			LabelAppManagedBy:          ManagedByGarageOperator,
+			"garage.rajsingh.info/key": key.Name,
 		},
 		annotations: map[string]string{},
 		secretType:  corev1.SecretTypeOpaque,
@@ -667,7 +667,7 @@ func buildSecretData(cfg secretConfig, key *garagev1alpha1.GarageKey, cluster *g
 	}
 
 	if cfg.includeRegion {
-		region := "garage"
+		region := DefaultS3Region
 		if cluster.Spec.S3API != nil && cluster.Spec.S3API.Region != "" {
 			region = cluster.Spec.S3API.Region
 		}
@@ -804,9 +804,9 @@ func (r *GarageKeyReconciler) updateStatus(ctx context.Context, key *garagev1alp
 
 	if err != nil {
 		meta.SetStatusCondition(&key.Status.Conditions, metav1.Condition{
-			Type:               "Ready",
+			Type:               PhaseReady,
 			Status:             metav1.ConditionFalse,
-			Reason:             "Error",
+			Reason:             PhaseError,
 			Message:            err.Error(),
 			ObservedGeneration: key.Generation,
 		})
@@ -829,10 +829,10 @@ func (r *GarageKeyReconciler) updateStatusFromGarage(ctx context.Context, key *g
 
 	garageKey, err := garageClient.GetKey(ctx, garage.GetKeyRequest{ID: key.Status.AccessKeyID})
 	if err != nil {
-		return r.updateStatus(ctx, key, "Error", fmt.Errorf("failed to get key info: %w", err))
+		return r.updateStatus(ctx, key, PhaseError, fmt.Errorf("failed to get key info: %w", err))
 	}
 
-	key.Status.Phase = "Ready"
+	key.Status.Phase = PhaseReady
 	key.Status.ObservedGeneration = key.Generation
 	key.Status.Permissions = &garagev1alpha1.KeyPermissions{
 		CreateBucket: garageKey.Permissions.CreateBucket,
@@ -873,7 +873,7 @@ func (r *GarageKeyReconciler) updateStatusFromGarage(ctx context.Context, key *g
 	}
 
 	meta.SetStatusCondition(&key.Status.Conditions, metav1.Condition{
-		Type:               "Ready",
+		Type:               PhaseReady,
 		Status:             metav1.ConditionTrue,
 		Reason:             "KeyReady",
 		Message:            "Key is ready",

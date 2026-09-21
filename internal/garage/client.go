@@ -35,6 +35,12 @@ const (
 	WorkerStateThrottled = "throttled"
 )
 
+// Admin API query parameters
+const (
+	// queryParamNode selects the node an Admin API call is targeted at
+	queryParamNode = "node"
+)
+
 // APIError represents an error returned by the Garage Admin API
 type APIError struct {
 	StatusCode int
@@ -1187,7 +1193,7 @@ type ListWorkersRequest struct {
 
 // ListWorkers returns information about background workers on a node
 func (c *Client) ListWorkers(ctx context.Context, nodeID string, busyOnly, errorOnly bool) ([]WorkerInfo, error) {
-	query := map[string]string{"node": nodeID}
+	query := map[string]string{queryParamNode: nodeID}
 	req := ListWorkersRequest{BusyOnly: busyOnly, ErrorOnly: errorOnly}
 	resp, err := c.doRequestWithQuery(ctx, http.MethodPost, "/v2/ListWorkers", query, req)
 	if err != nil {
@@ -1212,7 +1218,7 @@ type GetWorkerVariableRequest struct {
 // Returns a map of variable names to values. If variable is empty, returns all variables.
 // Matches Garage's LocalGetWorkerVariableResponse which is HashMap<String, String>
 func (c *Client) GetWorkerVariable(ctx context.Context, nodeID, variable string) (map[string]string, error) {
-	query := map[string]string{"node": nodeID}
+	query := map[string]string{queryParamNode: nodeID}
 	var req GetWorkerVariableRequest
 	if variable != "" {
 		req.Variable = &variable
@@ -1243,7 +1249,7 @@ type SetWorkerVariableRequest struct {
 
 // SetWorkerVariable sets a worker configuration variable on a node
 func (c *Client) SetWorkerVariable(ctx context.Context, nodeID, variable, value string) error {
-	query := map[string]string{"node": nodeID}
+	query := map[string]string{queryParamNode: nodeID}
 	req := SetWorkerVariableRequest{Variable: variable, Value: value}
 	_, err := c.doRequestWithQuery(ctx, http.MethodPost, "/v2/SetWorkerVariable", query, req)
 	return err
@@ -1256,7 +1262,7 @@ type LaunchRepairRequest struct {
 
 // LaunchRepair starts a repair operation on a node
 func (c *Client) LaunchRepair(ctx context.Context, nodeID, repairType string) error {
-	query := map[string]string{"node": nodeID}
+	query := map[string]string{queryParamNode: nodeID}
 	req := LaunchRepairRequest{RepairType: repairType}
 	_, err := c.doRequestWithQuery(ctx, http.MethodPost, "/v2/LaunchRepairOperation", query, req)
 	return err
@@ -1264,7 +1270,7 @@ func (c *Client) LaunchRepair(ctx context.Context, nodeID, repairType string) er
 
 // CreateMetadataSnapshot triggers a metadata snapshot on a node
 func (c *Client) CreateMetadataSnapshot(ctx context.Context, nodeID string) error {
-	query := map[string]string{"node": nodeID}
+	query := map[string]string{queryParamNode: nodeID}
 	_, err := c.doRequestWithQuery(ctx, http.MethodPost, "/v2/CreateMetadataSnapshot", query, nil)
 	return err
 }

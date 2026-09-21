@@ -73,7 +73,7 @@ func (r *GarageAdminTokenReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		Name:      token.Spec.ClusterRef.Name,
 		Namespace: clusterNamespace,
 	}, cluster); err != nil {
-		return r.updateStatus(ctx, token, "Error", fmt.Errorf("cluster not found: %w", err))
+		return r.updateStatus(ctx, token, PhaseError, fmt.Errorf("cluster not found: %w", err))
 	}
 
 	// Handle deletion
@@ -99,12 +99,12 @@ func (r *GarageAdminTokenReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		if err := r.Update(ctx, token); err != nil {
 			return ctrl.Result{}, err
 		}
-		return ctrl.Result{Requeue: true}, nil
+		return ctrl.Result{RequeueAfter: RequeueAfterImmediate}, nil
 	}
 
 	// Reconcile the admin token secret
 	if err := r.reconcileSecret(ctx, token, cluster); err != nil {
-		return r.updateStatus(ctx, token, "Error", err)
+		return r.updateStatus(ctx, token, PhaseError, err)
 	}
 
 	// Check expiration
@@ -116,7 +116,7 @@ func (r *GarageAdminTokenReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		}
 	}
 
-	return r.updateStatus(ctx, token, "Ready", nil)
+	return r.updateStatus(ctx, token, PhaseReady, nil)
 }
 
 func (r *GarageAdminTokenReconciler) reconcileSecret(ctx context.Context, token *garagev1alpha1.GarageAdminToken, cluster *garagev1alpha1.GarageCluster) error {
@@ -191,7 +191,7 @@ func (r *GarageAdminTokenReconciler) reconcileSecret(ctx context.Context, token 
 
 	// Build labels
 	labels := map[string]string{
-		"app.kubernetes.io/managed-by":    "garage-operator",
+		LabelAppManagedBy:                 ManagedByGarageOperator,
 		"garage.rajsingh.info/admintoken": token.Name,
 	}
 	if token.Spec.SecretTemplate != nil && token.Spec.SecretTemplate.Labels != nil {
@@ -298,7 +298,7 @@ func (r *GarageAdminTokenReconciler) updateStatus(ctx context.Context, token *ga
 
 	if err != nil {
 		conditionStatus = metav1.ConditionFalse
-		reason = "Error"
+		reason = PhaseError
 		message = err.Error()
 	} else if token.Status.Expired {
 		conditionStatus = metav1.ConditionFalse
@@ -307,7 +307,7 @@ func (r *GarageAdminTokenReconciler) updateStatus(ctx context.Context, token *ga
 	}
 
 	meta.SetStatusCondition(&token.Status.Conditions, metav1.Condition{
-		Type:               "Ready",
+		Type:               PhaseReady,
 		Status:             conditionStatus,
 		Reason:             reason,
 		Message:            message,
